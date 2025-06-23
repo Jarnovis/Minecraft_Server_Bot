@@ -101,7 +101,6 @@ public class ServerLogs : IDisposable
 
     private async Task WatchAsync(CancellationToken ct)
     {
-        Console.WriteLine("X");
         using var stream = new FileStream(_logFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
         using var reader = new StreamReader(stream);
 
