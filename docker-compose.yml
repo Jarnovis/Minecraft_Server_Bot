@@ -17,8 +17,10 @@ services:
       VIEW_DISTANCE: 15
       ENABLE_WHITELIST: "TRUE"
       DIFFICULTY: "HARD"
+      TYPE: "FABRIC"
     volumes:
       - ./data:/data
+      - ./mod:/mod
     restart: unless-stopped
 
   bot:
