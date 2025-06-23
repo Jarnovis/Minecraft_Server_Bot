@@ -83,10 +83,10 @@ public class ServerLogs : IDisposable
                 var left = _players.Except(currentPlayers).ToList();
 
                 foreach (var player in joined)
-                    await SendDiscordMessage($"🟢 {player} joined the server ({EnvConfig.Get("PUBLIC_SERVER_IP")}:{EnvConfig.Get("PUBLIC_SERVER_PORT")})");
+                    await SendDiscordMessage($"👋🏼 {player} joined the server ({EnvConfig.Get("PUBLIC_SERVER_IP")}:{EnvConfig.Get("PUBLIC_SERVER_PORT")})");
 
                 foreach (var player in left)
-                    await SendDiscordMessage($"🔴 {player} left the server ({EnvConfig.Get("PUBLIC_SERVER_IP")}:{EnvConfig.Get("PUBLIC_SERVER_PORT")})");
+                    await SendDiscordMessage($"🫡 {player} left the server ({EnvConfig.Get("PUBLIC_SERVER_IP")}:{EnvConfig.Get("PUBLIC_SERVER_PORT")})");
 
                 _players = currentPlayers;
             }
@@ -101,6 +101,7 @@ public class ServerLogs : IDisposable
 
     private async Task WatchAsync(CancellationToken ct)
     {
+        Console.WriteLine("X");
         using var stream = new FileStream(_logFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
         using var reader = new StreamReader(stream);
 
@@ -108,11 +109,11 @@ public class ServerLogs : IDisposable
 
         while (!ct.IsCancellationRequested)
         {
-            var line = await reader.ReadLineAsync();
-            line = line.ToLower();
+            string? line = await reader.ReadLineAsync();
 
             if (line != null)
             {
+                line = line.ToLower();
                 if (line.Contains("saved") || line.Contains("saving") || line.Contains("save"))
                 {
                     await SendDiscordMessage($"💾 The Minecraft server ({EnvConfig.Get("PUBLIC_SERVER_IP")}:{EnvConfig.Get("PUBLIC_SERVER_PORT")}) has just saved!");
