@@ -8,6 +8,6 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = Minecraft_Server_Bot
-build_property.ProjectDir = C:\Users\jdvis_x5odeao\Personal Projects\Discord_Bots\Minecraft_Server_Bot\
+build_property.ProjectDir = c:\Users\jdvis_x5odeao\Personal Projects\Discord_Bots\Minecraft_Server_Bot\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 

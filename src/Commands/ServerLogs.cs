@@ -109,10 +109,11 @@ public class ServerLogs : IDisposable
         while (!ct.IsCancellationRequested)
         {
             var line = await reader.ReadLineAsync();
+            line = line.ToLower();
 
             if (line != null)
             {
-                if (line.Contains("Saved the world") || line.Contains("Saving chunks"))
+                if (line.Contains("saved") || line.Contains("saving") || line.Contains("save"))
                 {
                     await SendDiscordMessage($"💾 The Minecraft server ({EnvConfig.Get("PUBLIC_SERVER_IP")}:{EnvConfig.Get("PUBLIC_SERVER_PORT")}) has just saved!");
                 }
