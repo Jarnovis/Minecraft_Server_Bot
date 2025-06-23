@@ -36,3 +36,4 @@ C:\Users\jdvis_x5odeao\Personal Projects\Discord_Bots\Minecraft_Server_Bot\obj\D
 C:\Users\jdvis_x5odeao\Personal Projects\Discord_Bots\Minecraft_Server_Bot\obj\Debug\net8.0\Minecraft_Server_Bot.pdb
 C:\Users\jdvis_x5odeao\Personal Projects\Discord_Bots\Minecraft_Server_Bot\obj\Debug\net8.0\Minecraft_Server_Bot.genruntimeconfig.cache
 C:\Users\jdvis_x5odeao\Personal Projects\Discord_Bots\Minecraft_Server_Bot\obj\Debug\net8.0\ref\Minecraft_Server_Bot.dll
+C:\Users\jdvis_x5odeao\Personal Projects\Discord_Bots\Minecraft_Server_Bot\obj\Debug\net8.0\Minecraft_Server_Bot.sourcelink.json

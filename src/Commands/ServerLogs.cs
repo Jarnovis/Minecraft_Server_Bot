@@ -83,10 +83,10 @@ public class ServerLogs : IDisposable
                 var left = _players.Except(currentPlayers).ToList();
 
                 foreach (var player in joined)
-                    await SendDiscordMessage($"🟢 {player} joined the server ({EnvConfig.Get("SERVER_IP")})");
+                    await SendDiscordMessage($"🟢 {player} joined the server ({EnvConfig.Get("PUBLIC_SERVER_IP")}:{EnvConfig.Get("PUBLIC_SERVER_PORT")})");
 
                 foreach (var player in left)
-                    await SendDiscordMessage($"🔴 {player} left the server ({EnvConfig.Get("SERVER_IP")})");
+                    await SendDiscordMessage($"🔴 {player} left the server ({EnvConfig.Get("PUBLIC_SERVER_IP")}:{EnvConfig.Get("PUBLIC_SERVER_PORT")})");
 
                 _players = currentPlayers;
             }
