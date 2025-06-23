@@ -1,0 +1,146 @@
+using System.Runtime.Loader;
+using CoreRCON;
+using Discord;
+using Discord.WebSocket;
+using MinecraftServerDiscordBot.Data;
+
+namespace MinecraftServerDiscordBot.Commands;
+
+public class ServerLogs : IDisposable
+{
+    private readonly RCON _rcon;
+    private readonly DiscordSocketClient _client;
+    private readonly ITextChannel _targetChannel;
+    private readonly string _logFilePath = EnvConfig.Get("LOG_FILE_PATH");
+
+    private List<string> _players = new List<string>();
+    private CancellationTokenSource _cts = new CancellationTokenSource();
+
+    private Task _monitorPlayersTask;
+    private Task _watchAsyncTask;
+    private bool _shutdownInitiated = false;
+    private readonly object _shutdownLock = new object();
+
+    public ServerLogs(RCON rcon, DiscordSocketClient client, ITextChannel targetChannel)
+    {
+        _rcon = rcon;
+        _client = client;
+        _targetChannel = targetChannel;
+        _monitorPlayersTask = MonitorPlayers(_cts.Token);
+        _watchAsyncTask = WatchAsync(_cts.Token);
+
+        SendDiscordMessage($"🟢 Server ({EnvConfig.Get("PUBLIC_SERVER_IP")}:{EnvConfig.Get("PUBLIC_SERVER_PORT")}) is online").GetAwaiter().GetResult();
+
+        AssemblyLoadContext.Default.Unloading += ctx => OnShutdown();
+        AppDomain.CurrentDomain.ProcessExit += (s, e) => OnShutdown();
+
+        Console.CancelKeyPress += async (sender, e) =>
+        {
+            e.Cancel = true;
+            OnShutdown();
+            Environment.Exit(0);
+        };
+    }
+
+    public void Dispose()
+    {
+        _cts.Cancel();
+
+        Task.WaitAll(new[] { _monitorPlayersTask, _watchAsyncTask }, TimeSpan.FromSeconds(10));
+
+        HandleShutdownAsync().GetAwaiter().GetResult();
+    }
+
+    private async Task SendDiscordMessage(string message)
+    {
+        if (_targetChannel != null)
+        {
+            await _targetChannel.SendMessageAsync(message);
+        }
+    }
+
+     private List<string> ParsePlayerList(string response)
+    {
+        var parts = response.Split(':');
+
+        if (parts.Length < 2) return new List<string>();
+
+        var players = parts[1].Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        return players.ToList();
+    }
+
+    private async Task MonitorPlayers(CancellationToken ct)
+    {
+        while (!ct.IsCancellationRequested)
+        {
+            try
+            {
+                var response = await _rcon.SendCommandAsync("list");
+                var currentPlayers = ParsePlayerList(response);
+
+                var joined = currentPlayers.Except(_players).ToList();
+                var left = _players.Except(currentPlayers).ToList();
+
+                foreach (var player in joined)
+                    await SendDiscordMessage($"🟢 {player} joined the server ({EnvConfig.Get("SERVER_IP")})");
+
+                foreach (var player in left)
+                    await SendDiscordMessage($"🔴 {player} left the server ({EnvConfig.Get("SERVER_IP")})");
+
+                _players = currentPlayers;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Monitor error: {ex.Message}");
+            }
+
+            await Task.Delay(5000, ct).ContinueWith(t => { });
+        }
+    }
+
+    private async Task WatchAsync(CancellationToken ct)
+    {
+        using var stream = new FileStream(_logFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+        using var reader = new StreamReader(stream);
+
+        stream.Seek(0, SeekOrigin.End);
+
+        while (!ct.IsCancellationRequested)
+        {
+            var line = await reader.ReadLineAsync();
+
+            if (line != null)
+            {
+                if (line.Contains("Saved the world") || line.Contains("Saving chunks"))
+                {
+                    await SendDiscordMessage($"💾 The Minecraft server ({EnvConfig.Get("PUBLIC_SERVER_IP")}:{EnvConfig.Get("PUBLIC_SERVER_PORT")}) has just saved!");
+                }
+            }
+            else
+            {
+                await Task.Delay(1000, ct).ContinueWith(t => { });
+                reader.DiscardBufferedData();
+                stream.Seek(stream.Position, SeekOrigin.Begin);
+            }
+        }
+    }
+    private void OnShutdown()
+    {
+        lock (_shutdownLock)
+        {
+            if (_shutdownInitiated) return;
+            _shutdownInitiated = true;
+        }
+
+        Dispose();
+    }
+
+    private async Task HandleShutdownAsync()
+    {
+        await SendDiscordMessage($"🟠 Closing server {EnvConfig.Get("PUBLIC_SERVER_IP")}:{EnvConfig.Get("PUBLIC_SERVER_PORT")}.");
+        await _rcon.SendCommandAsync("save-all");
+        await SendDiscordMessage($"💾 The Minecraft server ({EnvConfig.Get("PUBLIC_SERVER_IP")}:{EnvConfig.Get("PUBLIC_SERVER_PORT")}) has just saved!");
+        await SendDiscordMessage($"🔴 Server {EnvConfig.Get("PUBLIC_SERVER_IP")}:{EnvConfig.Get("PUBLIC_SERVER_PORT")} closed.");
+    }
+}
