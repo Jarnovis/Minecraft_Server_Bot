@@ -62,7 +62,7 @@ class Program
 
         try
         {
-            var server_ip = IPAddress.Parse(EnvConfig.Get("SERVER_IP"));
+            var server_ip = IPAddress.Parse(EnvConfig.Get("RCON_HOST"));
             int rcon_port = Convert.ToInt32(EnvConfig.Get("RCON_PORT"));
             var end_point = new IPEndPoint(server_ip, rcon_port);
             string rcon_password = EnvConfig.Get("RCON_PASSWORD");
