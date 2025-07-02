@@ -4,12 +4,19 @@ using Discord;
 using Discord.WebSocket;
 using MinecraftServerDiscordBot.Data;
 using MinecraftServerDiscordBot.Commands;
+using CoreRCON;
+using System.Net;
+using MinecraftServerDiscordBot.BackgroundTaskss;
 
 public class DiscordBot
 {
     private static readonly DiscordSocketClient _client;
     private static readonly string _botToken = EnvConfig.Get("DISCORD_TOKEN");
-    private static readonly ITextChannel _targetChannel;
+    private static ITextChannel _targetChannel;
+    private readonly object _shutdownLock = new object();
+    private static ServerLogs? _serverLogs;
+    private static CancellationTokenSource _cts = new CancellationTokenSource();
+    private static RCON _rcon;
 
     static DiscordBot()
     {
@@ -22,15 +29,30 @@ public class DiscordBot
 
         _client.Log += LogAsync;
         _client.Ready += ReadyAsync;
-        _client.MessageReceived += SendDiscordMessage;
 
-        _client.Ready += async () =>
+        _client.MessageReceived += HandleMessageAsync;
+        
+        var server_ip = IPAddress.Parse(EnvConfig.Get("RCON_HOST"));
+        int rcon_port = Convert.ToInt32(EnvConfig.Get("RCON_PORT"));
+        var end_point = new IPEndPoint(server_ip, rcon_port);
+        string rcon_password = EnvConfig.Get("RCON_PASSWORD");
+
+        _rcon = new RCON(end_point, rcon_password);
+        _rcon.ConnectAsync();
+
+        var backgroundTasks = new BackgroundTasks(_rcon);
+        var autoSaveTask = backgroundTasks.AutoSave(_cts.Token);
+
+        Console.CancelKeyPress += (sender, e) =>
         {
-            foreach (var guild in _client.Guilds)
-            {
-                var channel = await Channel.ChannelExistens(guild, "minecraft");
-            }
+            e.Cancel = true;
+            _cts.Cancel();
         };
+    }
+
+    public static void SetTargetChannel(ITextChannel channel)
+    {
+        _targetChannel = channel;
     }
 
     public static async Task StartAsync()
@@ -46,11 +68,20 @@ public class DiscordBot
         return Task.CompletedTask;
     }
 
-    private static Task ReadyAsync()
+    private static async Task ReadyAsync()
     {
         Console.WriteLine($"✅ Connected as -> [{_client.CurrentUser}]");
-        return Task.CompletedTask;
+
+        if (_serverLogs != null)
+            return;
+
+        foreach (var guild in _client.Guilds)
+        {
+            var channel = await Channel.ChannelExistens(guild, "minecraft");
+            _serverLogs = new ServerLogs(_rcon, _client, channel);
+        }
     }
+
 
     public static async Task SendDiscordMessage(SocketMessage message)
     {
@@ -66,5 +97,13 @@ public class DiscordBot
         {
             await _targetChannel.SendMessageAsync(message.ToString());
         }
+    }
+
+    private static async Task HandleMessageAsync(SocketMessage message)
+    {
+        if (message.Author.IsBot) return;
+
+        if (message.Content.StartsWith("!help"))
+            await message.Channel.SendMessageAsync("Available commands: !mc OP command");
     }
 }

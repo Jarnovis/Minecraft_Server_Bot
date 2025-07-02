@@ -17,6 +17,7 @@ class Program
     private DiscordSocketClient _client;
     private RCON _rcon;
     private CancellationTokenSource _cts;
+    private ServerLogs? _serverLogs;
 
     static void Main(string[] args) => new Program().MainAsync().GetAwaiter().GetResult();
 
@@ -48,55 +49,21 @@ class Program
     {
         _cts = new CancellationTokenSource();
 
-        _client = new DiscordSocketClient(new DiscordSocketConfig
-        {
-            GatewayIntents = GatewayIntents.Guilds |
-                            GatewayIntents.GuildMessages |
-                            GatewayIntents.MessageContent
-        });
+        // _client = new DiscordSocketClient(new DiscordSocketConfig
+        // {
+        //     GatewayIntents = GatewayIntents.Guilds |
+        //                     GatewayIntents.GuildMessages |
+        //                     GatewayIntents.MessageContent
+        // });
 
-        _client.Log += Log;
-        _client.MessageReceived += HandleMessage;
+        // _client.Log += Log;
+        // _client.MessageReceived += HandleMessage;
 
-        var discordToken = EnvConfig.Get("DISCORD_TOKEN");
+        // var discordToken = EnvConfig.Get("DISCORD_TOKEN");
 
-        await _client.LoginAsync(TokenType.Bot, discordToken);
-        await _client.StartAsync();
+        // await _client.LoginAsync(TokenType.Bot, discordToken);
+        // await _client.StartAsync();
 
-        try
-        {
-            var server_ip = IPAddress.Parse(EnvConfig.Get("RCON_HOST"));
-            int rcon_port = Convert.ToInt32(EnvConfig.Get("RCON_PORT"));
-            var end_point = new IPEndPoint(server_ip, rcon_port);
-            string rcon_password = EnvConfig.Get("RCON_PASSWORD");
-
-            _rcon = new RCON(end_point, rcon_password);
-            await _rcon.ConnectAsync();
-
-            var backgroundTasks = new BackgroundTasks(_rcon);
-            var autoSaveTask = backgroundTasks.AutoSave(_cts.Token);
-
-            _client.Ready += async () =>
-            {
-                foreach (var guild in _client.Guilds)
-                {
-                    var channel = await Channel.ChannelExistens(guild, "minecraft");
-                    var serverLogs = new ServerLogs(_rcon, _client, channel);
-                }
-            };
-
-            Console.CancelKeyPress += (sender, e) =>
-            {
-                e.Cancel = true;
-                _cts.Cancel();
-            };
-
-            await Task.Delay(-1);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
-            return;
-        }
+        await DiscordBot.DiscordBot.StartAsync();
     }
 }

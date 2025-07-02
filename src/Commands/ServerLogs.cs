@@ -20,6 +20,7 @@ public class ServerLogs : IDisposable
     private Task _monitorPlayersTask;
     private Task _watchAsyncTask;
     private bool _shutdownInitiated = false;
+    private Task _deathWatchTask;
     private readonly object _shutdownLock = new object();
 
     public ServerLogs(RCON rcon, DiscordSocketClient client, ITextChannel targetChannel)
@@ -29,6 +30,8 @@ public class ServerLogs : IDisposable
         _targetChannel = targetChannel;
         _monitorPlayersTask = MonitorPlayers(_cts.Token);
         _watchAsyncTask = WatchAsync(_cts.Token);
+        _deathWatchTask = DeathWatch(_cts.Token);
+        DiscordBot.DiscordBot.SetTargetChannel(_targetChannel);
 
         DiscordBot.DiscordBot.SendDiscordMessage($"🟢 Server ({EnvConfig.Get("PUBLIC_SERVER_IP")}:{EnvConfig.Get("PUBLIC_SERVER_PORT")}) is online").GetAwaiter().GetResult();
 
@@ -47,7 +50,7 @@ public class ServerLogs : IDisposable
     {
         _cts.Cancel();
 
-        Task.WaitAll(new[] { _monitorPlayersTask, _watchAsyncTask }, TimeSpan.FromSeconds(10));
+        Task.WaitAll(new[] { _monitorPlayersTask, _watchAsyncTask, _deathWatchTask }, TimeSpan.FromSeconds(10));
 
         HandleShutdownAsync().GetAwaiter().GetResult();
     }
@@ -86,6 +89,25 @@ public class ServerLogs : IDisposable
             catch (Exception ex)
             {
                 Console.WriteLine($"Monitor error: {ex.Message}");
+
+                if (_rcon.Connected)
+                {
+                    var response = await _rcon.SendCommandAsync("list");
+                    // ...
+                }
+                else
+                {
+                    try
+                    {
+                        await _rcon.ConnectAsync();
+                        Console.WriteLine("Reconnected RCON.");
+                    }
+                    catch (Exception ex2)
+                    {
+                        Console.WriteLine($"Failed to reconnect RCON: {ex2}");
+                    }
+                }
+
             }
 
             await Task.Delay(5000, ct).ContinueWith(t => { });
