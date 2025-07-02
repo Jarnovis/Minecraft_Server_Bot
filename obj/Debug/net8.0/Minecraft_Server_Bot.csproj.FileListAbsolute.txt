@@ -37,3 +37,42 @@ C:\Users\jdvis_x5odeao\Personal Projects\Discord_Bots\Minecraft_Server_Bot\obj\D
 C:\Users\jdvis_x5odeao\Personal Projects\Discord_Bots\Minecraft_Server_Bot\obj\Debug\net8.0\Minecraft_Server_Bot.genruntimeconfig.cache
 C:\Users\jdvis_x5odeao\Personal Projects\Discord_Bots\Minecraft_Server_Bot\obj\Debug\net8.0\ref\Minecraft_Server_Bot.dll
 C:\Users\jdvis_x5odeao\Personal Projects\Discord_Bots\Minecraft_Server_Bot\obj\Debug\net8.0\Minecraft_Server_Bot.sourcelink.json
+C:\Users\jdvis\Downloads\Minecraft_Server_Bot\bin\Debug\net8.0\Minecraft_Server_Bot.exe
+C:\Users\jdvis\Downloads\Minecraft_Server_Bot\bin\Debug\net8.0\Minecraft_Server_Bot.deps.json
+C:\Users\jdvis\Downloads\Minecraft_Server_Bot\bin\Debug\net8.0\Minecraft_Server_Bot.runtimeconfig.json
+C:\Users\jdvis\Downloads\Minecraft_Server_Bot\bin\Debug\net8.0\Minecraft_Server_Bot.dll
+C:\Users\jdvis\Downloads\Minecraft_Server_Bot\bin\Debug\net8.0\Minecraft_Server_Bot.pdb
+C:\Users\jdvis\Downloads\Minecraft_Server_Bot\bin\Debug\net8.0\CoreRCON.dll
+C:\Users\jdvis\Downloads\Minecraft_Server_Bot\bin\Debug\net8.0\Discord.Net.Commands.dll
+C:\Users\jdvis\Downloads\Minecraft_Server_Bot\bin\Debug\net8.0\Discord.Net.Core.dll
+C:\Users\jdvis\Downloads\Minecraft_Server_Bot\bin\Debug\net8.0\Discord.Net.Interactions.dll
+C:\Users\jdvis\Downloads\Minecraft_Server_Bot\bin\Debug\net8.0\Discord.Net.Rest.dll
+C:\Users\jdvis\Downloads\Minecraft_Server_Bot\bin\Debug\net8.0\Discord.Net.Webhook.dll
+C:\Users\jdvis\Downloads\Minecraft_Server_Bot\bin\Debug\net8.0\Discord.Net.WebSocket.dll
+C:\Users\jdvis\Downloads\Minecraft_Server_Bot\bin\Debug\net8.0\DotEnv.dll
+C:\Users\jdvis\Downloads\Minecraft_Server_Bot\bin\Debug\net8.0\dotenv.net.dll
+C:\Users\jdvis\Downloads\Minecraft_Server_Bot\bin\Debug\net8.0\Microsoft.Bcl.AsyncInterfaces.dll
+C:\Users\jdvis\Downloads\Minecraft_Server_Bot\bin\Debug\net8.0\Microsoft.Extensions.DependencyInjection.dll
+C:\Users\jdvis\Downloads\Minecraft_Server_Bot\bin\Debug\net8.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+C:\Users\jdvis\Downloads\Minecraft_Server_Bot\bin\Debug\net8.0\Microsoft.Extensions.Logging.dll
+C:\Users\jdvis\Downloads\Minecraft_Server_Bot\bin\Debug\net8.0\Microsoft.Extensions.Logging.Abstractions.dll
+C:\Users\jdvis\Downloads\Minecraft_Server_Bot\bin\Debug\net8.0\Microsoft.Extensions.Options.dll
+C:\Users\jdvis\Downloads\Minecraft_Server_Bot\bin\Debug\net8.0\Microsoft.Extensions.Primitives.dll
+C:\Users\jdvis\Downloads\Minecraft_Server_Bot\bin\Debug\net8.0\Newtonsoft.Json.dll
+C:\Users\jdvis\Downloads\Minecraft_Server_Bot\bin\Debug\net8.0\System.Interactive.Async.dll
+C:\Users\jdvis\Downloads\Minecraft_Server_Bot\bin\Debug\net8.0\System.IO.Abstractions.dll
+C:\Users\jdvis\Downloads\Minecraft_Server_Bot\bin\Debug\net8.0\System.IO.Pipelines.dll
+C:\Users\jdvis\Downloads\Minecraft_Server_Bot\bin\Debug\net8.0\System.Linq.Async.dll
+C:\Users\jdvis\Downloads\Minecraft_Server_Bot\bin\Debug\net8.0\System.Reactive.dll
+C:\Users\jdvis\Downloads\Minecraft_Server_Bot\obj\Debug\net8.0\Minecraft_Server_Bot.csproj.AssemblyReference.cache
+C:\Users\jdvis\Downloads\Minecraft_Server_Bot\obj\Debug\net8.0\Minecraft_Server_Bot.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\jdvis\Downloads\Minecraft_Server_Bot\obj\Debug\net8.0\Minecraft_Server_Bot.AssemblyInfoInputs.cache
+C:\Users\jdvis\Downloads\Minecraft_Server_Bot\obj\Debug\net8.0\Minecraft_Server_Bot.AssemblyInfo.cs
+C:\Users\jdvis\Downloads\Minecraft_Server_Bot\obj\Debug\net8.0\Minecraft_Server_Bot.csproj.CoreCompileInputs.cache
+C:\Users\jdvis\Downloads\Minecraft_Server_Bot\obj\Debug\net8.0\Minecraft_Server_Bot.sourcelink.json
+C:\Users\jdvis\Downloads\Minecraft_Server_Bot\obj\Debug\net8.0\Minecraf.A6274590.Up2Date
+C:\Users\jdvis\Downloads\Minecraft_Server_Bot\obj\Debug\net8.0\Minecraft_Server_Bot.dll
+C:\Users\jdvis\Downloads\Minecraft_Server_Bot\obj\Debug\net8.0\refint\Minecraft_Server_Bot.dll
+C:\Users\jdvis\Downloads\Minecraft_Server_Bot\obj\Debug\net8.0\Minecraft_Server_Bot.pdb
+C:\Users\jdvis\Downloads\Minecraft_Server_Bot\obj\Debug\net8.0\Minecraft_Server_Bot.genruntimeconfig.cache
+C:\Users\jdvis\Downloads\Minecraft_Server_Bot\obj\Debug\net8.0\ref\Minecraft_Server_Bot.dll

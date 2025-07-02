@@ -1,5 +1,4 @@
-﻿namespace MinecraftServerDiscordBot;
-
+﻿
 using System;
 using System.Net;
 using System.Threading.Tasks;
@@ -9,26 +8,29 @@ using CoreRCON;
 using dotenv.net;
 using MinecraftServerDiscordBot.Data;
 using MinecraftServerDiscordBot.Commands;
+using MinecraftServerDiscordBot.BackgroundTaskss;
+
+namespace MinecraftServerDiscordBot;
 
 class Program
 {
     private DiscordSocketClient _client;
     private RCON _rcon;
+    private CancellationTokenSource _cts;
+
     static void Main(string[] args) => new Program().MainAsync().GetAwaiter().GetResult();
 
     private Task Log(LogMessage log)
     {
-        Console.WriteLine(log.ToString());
         return Task.CompletedTask;
     }
 
-    private async Task HandleMessage(SocketMessage message)
+    public async Task HandleMessage(SocketMessage message)
     {
         if (message.Author.IsBot) return;
 
         if (message.Content.StartsWith("!mc"))
         {
-            Console.WriteLine("Matched !mc command");
             var command = message.Content.Substring(4);
             try
             {
@@ -44,12 +46,13 @@ class Program
 
     public async Task MainAsync()
     {
+        _cts = new CancellationTokenSource();
 
         _client = new DiscordSocketClient(new DiscordSocketConfig
         {
             GatewayIntents = GatewayIntents.Guilds |
-            GatewayIntents.GuildMessages |
-            GatewayIntents.MessageContent
+                            GatewayIntents.GuildMessages |
+                            GatewayIntents.MessageContent
         });
 
         _client.Log += Log;
@@ -70,6 +73,9 @@ class Program
             _rcon = new RCON(end_point, rcon_password);
             await _rcon.ConnectAsync();
 
+            var backgroundTasks = new BackgroundTasks(_rcon);
+            var autoSaveTask = backgroundTasks.AutoSave(_cts.Token);
+
             _client.Ready += async () =>
             {
                 foreach (var guild in _client.Guilds)
@@ -79,6 +85,12 @@ class Program
                 }
             };
 
+            Console.CancelKeyPress += (sender, e) =>
+            {
+                e.Cancel = true;
+                _cts.Cancel();
+            };
+
             await Task.Delay(-1);
         }
         catch (Exception ex)
@@ -86,8 +98,5 @@ class Program
             Console.WriteLine(ex.Message);
             return;
         }
-
-
     }
-
 }

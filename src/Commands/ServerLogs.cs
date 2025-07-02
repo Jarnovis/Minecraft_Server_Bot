@@ -3,6 +3,7 @@ using CoreRCON;
 using Discord;
 using Discord.WebSocket;
 using MinecraftServerDiscordBot.Data;
+using MinecraftServerDiscordBot.DiscordBot;
 
 namespace MinecraftServerDiscordBot.Commands;
 
@@ -29,7 +30,7 @@ public class ServerLogs : IDisposable
         _monitorPlayersTask = MonitorPlayers(_cts.Token);
         _watchAsyncTask = WatchAsync(_cts.Token);
 
-        SendDiscordMessage($"🟢 Server ({EnvConfig.Get("PUBLIC_SERVER_IP")}:{EnvConfig.Get("PUBLIC_SERVER_PORT")}) is online").GetAwaiter().GetResult();
+        DiscordBot.DiscordBot.SendDiscordMessage($"🟢 Server ({EnvConfig.Get("PUBLIC_SERVER_IP")}:{EnvConfig.Get("PUBLIC_SERVER_PORT")}) is online").GetAwaiter().GetResult();
 
         AssemblyLoadContext.Default.Unloading += ctx => OnShutdown();
         AppDomain.CurrentDomain.ProcessExit += (s, e) => OnShutdown();
@@ -51,15 +52,7 @@ public class ServerLogs : IDisposable
         HandleShutdownAsync().GetAwaiter().GetResult();
     }
 
-    private async Task SendDiscordMessage(string message)
-    {
-        if (_targetChannel != null)
-        {
-            await _targetChannel.SendMessageAsync(message);
-        }
-    }
-
-     private List<string> ParsePlayerList(string response)
+    private List<string> ParsePlayerList(string response)
     {
         var parts = response.Split(':');
 
@@ -83,10 +76,10 @@ public class ServerLogs : IDisposable
                 var left = _players.Except(currentPlayers).ToList();
 
                 foreach (var player in joined)
-                    await SendDiscordMessage($"👋🏼 {player} joined the server ({EnvConfig.Get("PUBLIC_SERVER_IP")}:{EnvConfig.Get("PUBLIC_SERVER_PORT")})");
+                    await DiscordBot.DiscordBot.SendDiscordMessage($"👋🏼 {player} joined the server ({EnvConfig.Get("PUBLIC_SERVER_IP")}:{EnvConfig.Get("PUBLIC_SERVER_PORT")})");
 
                 foreach (var player in left)
-                    await SendDiscordMessage($"🫡 {player} left the server ({EnvConfig.Get("PUBLIC_SERVER_IP")}:{EnvConfig.Get("PUBLIC_SERVER_PORT")})");
+                    await DiscordBot.DiscordBot.SendDiscordMessage($"🫡 {player} left the server ({EnvConfig.Get("PUBLIC_SERVER_IP")}:{EnvConfig.Get("PUBLIC_SERVER_PORT")})");
 
                 _players = currentPlayers;
             }
@@ -115,7 +108,7 @@ public class ServerLogs : IDisposable
                 line = line.ToLower();
                 if (line.Contains("saved") || line.Contains("saving") || line.Contains("save"))
                 {
-                    await SendDiscordMessage($"💾 The Minecraft server ({EnvConfig.Get("PUBLIC_SERVER_IP")}:{EnvConfig.Get("PUBLIC_SERVER_PORT")}) has just saved!");
+                    await DiscordBot.DiscordBot.SendDiscordMessage($"💾 The Minecraft server ({EnvConfig.Get("PUBLIC_SERVER_IP")}:{EnvConfig.Get("PUBLIC_SERVER_PORT")}) has just saved!");
                 }
             }
             else
@@ -139,9 +132,46 @@ public class ServerLogs : IDisposable
 
     private async Task HandleShutdownAsync()
     {
-        await SendDiscordMessage($"🟠 Closing server {EnvConfig.Get("PUBLIC_SERVER_IP")}:{EnvConfig.Get("PUBLIC_SERVER_PORT")}.");
+        await DiscordBot.DiscordBot.SendDiscordMessage($"🟠 Closing server {EnvConfig.Get("PUBLIC_SERVER_IP")}:{EnvConfig.Get("PUBLIC_SERVER_PORT")}.");
         await _rcon.SendCommandAsync("save-all");
-        await SendDiscordMessage($"💾 The Minecraft server ({EnvConfig.Get("PUBLIC_SERVER_IP")}:{EnvConfig.Get("PUBLIC_SERVER_PORT")}) has just saved!");
-        await SendDiscordMessage($"🔴 Server {EnvConfig.Get("PUBLIC_SERVER_IP")}:{EnvConfig.Get("PUBLIC_SERVER_PORT")} closed.");
+        await DiscordBot.DiscordBot.SendDiscordMessage($"💾 The Minecraft server ({EnvConfig.Get("PUBLIC_SERVER_IP")}:{EnvConfig.Get("PUBLIC_SERVER_PORT")}) has just saved!");
+        await DiscordBot.DiscordBot.SendDiscordMessage($"🔴 Server {EnvConfig.Get("PUBLIC_SERVER_IP")}:{EnvConfig.Get("PUBLIC_SERVER_PORT")} closed.");
+    }
+
+    private async Task DeathWatch(CancellationToken ct)
+    {
+        string[] container = new string[] {
+            "was", "died", "drowned", "tried", "burned", "flames", "fire", "fall", "death", "cactus", "suffocated",
+            "shot", "killed", "blown", "blew", "slain", "fell"
+        };
+
+        using var stream = new FileStream(_logFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+        using var reader = new StreamReader(stream);
+
+        stream.Seek(0, SeekOrigin.End);
+
+        while (!ct.IsCancellationRequested)
+        {
+            string? line = await reader.ReadLineAsync();
+
+            if (line != null)
+            {
+                line = line.ToLower();
+
+                foreach (string s in container)
+                {
+                    if (line.Contains(s))
+                    {
+                        await DiscordBot.DiscordBot.SendDiscordMessage($"💀 {line}");
+                    }
+                }
+            }
+            else
+            {
+                await Task.Delay(1000, ct).ContinueWith(t => { });
+                reader.DiscardBufferedData();
+                stream.Seek(stream.Position, SeekOrigin.Begin);
+            }
+        }
     }
 }
