@@ -78,7 +78,7 @@ public class DiscordBot
         foreach (var guild in _client.Guilds)
         {
             var channel = await Channel.ChannelExistens(guild, "minecraft");
-            _serverLogs = new ServerLogs(_rcon, _client, channel);
+            _serverLogs = new ServerLogs(_client, channel);
         }
     }
 

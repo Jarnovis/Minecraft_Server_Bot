@@ -1,3 +1,4 @@
+using System.Net;
 using System.Runtime.Loader;
 using CoreRCON;
 using Discord;
@@ -23,9 +24,15 @@ public class ServerLogs : IDisposable
     private Task _deathWatchTask;
     private readonly object _shutdownLock = new object();
 
-    public ServerLogs(RCON rcon, DiscordSocketClient client, ITextChannel targetChannel)
+    public ServerLogs(DiscordSocketClient client, ITextChannel targetChannel)
     {
-        _rcon = rcon;
+        var server_ip = IPAddress.Parse(EnvConfig.Get("RCON_HOST"));
+        int rcon_port = Convert.ToInt32(EnvConfig.Get("RCON_PORT"));
+        var end_point = new IPEndPoint(server_ip, rcon_port);
+        string rcon_password = EnvConfig.Get("RCON_PASSWORD");
+        _rcon = new RCON(end_point, rcon_password);
+        _rcon.ConnectAsync();
+        
         _client = client;
         _targetChannel = targetChannel;
         _monitorPlayersTask = MonitorPlayers(_cts.Token);
