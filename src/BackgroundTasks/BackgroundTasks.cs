@@ -90,7 +90,9 @@ public class BackgroundTasks
 
                 if (timeNow == closingTime)
                 {
+                    await _rcon.SendCommandAsync($"Server will be open tomorrow at {startTime}");
                     await ServerLogs.HandleShutdownAsync();
+                    await DiscordBot.DiscordBot.SendDiscordMessage($"Server will be open tomorrow at {startTime}");
                 }
             }
 

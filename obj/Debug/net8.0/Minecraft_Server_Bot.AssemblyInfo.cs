@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Minecraft_Server_Bot")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a3343a2289ebb29aadd74d9b531ec94e82bd647f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+73a878b93db8560bba90c2dec40bc11273929603")]
 [assembly: System.Reflection.AssemblyProductAttribute("Minecraft_Server_Bot")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Minecraft_Server_Bot")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
