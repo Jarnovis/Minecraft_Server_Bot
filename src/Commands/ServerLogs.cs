@@ -11,7 +11,7 @@ namespace MinecraftServerDiscordBot.Commands;
 
 public class ServerLogs : IDisposable
 {
-    private readonly RCON _rcon;
+    private static RCON _rcon { get; set; }
     private readonly DiscordSocketClient _client;
     private readonly ITextChannel _targetChannel;
     private readonly string _logFilePath = EnvConfig.Get("LOG_FILE_PATH");
@@ -172,7 +172,7 @@ public class ServerLogs : IDisposable
         Dispose();
     }
 
-    private async Task HandleShutdownAsync()
+    public static async Task HandleShutdownAsync()
     {
         await DiscordBot.DiscordBot.SendDiscordMessage($"🟠 Closing server {EnvConfig.Get("PUBLIC_SERVER_IP")}:{EnvConfig.Get("PUBLIC_SERVER_PORT")}.");
         await _rcon.SendCommandAsync("save-all");

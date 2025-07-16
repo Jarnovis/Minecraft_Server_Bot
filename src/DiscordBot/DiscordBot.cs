@@ -40,8 +40,7 @@ public class DiscordBot
         _rcon = new RCON(end_point, rcon_password);
         _rcon.ConnectAsync();
 
-        var backgroundTasks = new BackgroundTasks(_rcon);
-        var autoSaveTask = backgroundTasks.AutoSave(_cts.Token);
+        var backgroundTasks = new BackgroundTasks(_rcon, _cts.Token);
 
         Console.CancelKeyPress += (sender, e) =>
         {
