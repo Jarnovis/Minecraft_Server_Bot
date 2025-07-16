@@ -36,6 +36,8 @@ services:
       LOG_FILE_PATH: ${LOG_FILE_PATH}
       PUBLIC_SERVER_IP: ${PUBLIC_SERVER_IP}
       PUBLIC_SERVER_PORT: ${PUBLIC_SERVER_PORT}
+      SERVER_OPENINGS_TIME: ${SERVER_OPENINGS_TIME}
+      SERVER_CLOSING_TIME: ${SERVER_CLOSING_TIME}
     volumes:
       - ./data:/data
     restart: unless-stopped
