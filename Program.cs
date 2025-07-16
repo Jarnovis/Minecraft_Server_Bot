@@ -14,10 +14,10 @@ namespace MinecraftServerDiscordBot;
 
 class Program
 {
-    private DiscordSocketClient _client;
-    private RCON _rcon;
-    private CancellationTokenSource _cts;
-    private ServerLogs? _serverLogs;
+    private DiscordSocketClient _client { get; set; }
+    private RCON _rcon { get; set; }
+    private CancellationTokenSource _cts { get; set; }
+    private ServerLogs? _serverLogs { get; set; }
 
     static void Main(string[] args) => new Program().MainAsync().GetAwaiter().GetResult();
 
@@ -48,6 +48,13 @@ class Program
     public async Task MainAsync()
     {
         _cts = new CancellationTokenSource();
+        var server_ip = IPAddress.Parse(EnvConfig.Get("RCON_HOST"));
+        int rcon_port = Convert.ToInt32(EnvConfig.Get("RCON_PORT"));
+        var end_point = new IPEndPoint(server_ip, rcon_port);
+        string rcon_password = EnvConfig.Get("RCON_PASSWORD");
+
+        _rcon = new RCON(end_point, rcon_password);
+        _rcon.ConnectAsync();
 
         // _client = new DiscordSocketClient(new DiscordSocketConfig
         // {
