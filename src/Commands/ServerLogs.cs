@@ -2,6 +2,7 @@ using System.Net;
 using System.Runtime.Loader;
 using CoreRCON;
 using Discord;
+using Discord.Rest;
 using Discord.WebSocket;
 using MinecraftServerDiscordBot.Data;
 using MinecraftServerDiscordBot.DiscordBot;
@@ -23,6 +24,7 @@ public class ServerLogs : IDisposable
     private bool _shutdownInitiated = false;
     private Task _deathWatchTask;
     private readonly object _shutdownLock = new object();
+    private bool _emptyServer = true;
 
     public ServerLogs(DiscordSocketClient client, ITextChannel targetChannel)
     {
@@ -32,7 +34,7 @@ public class ServerLogs : IDisposable
         string rcon_password = EnvConfig.Get("RCON_PASSWORD");
         _rcon = new RCON(end_point, rcon_password);
         _rcon.ConnectAsync();
-        
+
         _client = client;
         _targetChannel = targetChannel;
         _monitorPlayersTask = MonitorPlayers(_cts.Token);
@@ -51,6 +53,7 @@ public class ServerLogs : IDisposable
             OnShutdown();
             Environment.Exit(0);
         };
+        
     }
 
     public void Dispose()
@@ -62,7 +65,7 @@ public class ServerLogs : IDisposable
         HandleShutdownAsync().GetAwaiter().GetResult();
     }
 
-    private List<string> ParsePlayerList(string response)
+    public static List<string> ParsePlayerList(string response)
     {
         var parts = response.Split(':');
 
@@ -92,6 +95,16 @@ public class ServerLogs : IDisposable
                     await DiscordBot.DiscordBot.SendDiscordMessage($"🫡 {player} left the server ({EnvConfig.Get("PUBLIC_SERVER_IP")}:{EnvConfig.Get("PUBLIC_SERVER_PORT")})");
 
                 _players = currentPlayers;
+
+                if (_players.Count == 0 && !_emptyServer)
+                {
+                    await BackgroundTaskss.BackgroundTasks.Save();
+                    _emptyServer = true;
+                }
+                else if (_players.Count > 0)
+                {
+                    _emptyServer = false;
+                }
             }
             catch (Exception ex)
             {
@@ -100,7 +113,6 @@ public class ServerLogs : IDisposable
                 if (_rcon.Connected)
                 {
                     var response = await _rcon.SendCommandAsync("list");
-                    // ...
                 }
                 else
                 {
@@ -134,20 +146,21 @@ public class ServerLogs : IDisposable
 
             if (line != null)
             {
-                line = line.ToLower();
-                if (line.Contains("saved") || line.Contains("saving") || line.Contains("save"))
+                var lower = line.ToLowerInvariant();
+                if (lower.Contains("saved") || lower.Contains("saving") || lower.Contains("save"))
                 {
-                    await DiscordBot.DiscordBot.SendDiscordMessage($"💾 The Minecraft server ({EnvConfig.Get("PUBLIC_SERVER_IP")}:{EnvConfig.Get("PUBLIC_SERVER_PORT")}) has just saved!");
+                    await DiscordBot.DiscordBot.SendDiscordMessage(
+                        $"💾 The Minecraft server ({EnvConfig.Get("PUBLIC_SERVER_IP")}:{EnvConfig.Get("PUBLIC_SERVER_PORT")}) has just saved!"
+                    );
                 }
             }
             else
             {
-                await Task.Delay(1000, ct).ContinueWith(t => { });
-                reader.DiscardBufferedData();
-                stream.Seek(stream.Position, SeekOrigin.Begin);
+                await Task.Delay(1000, ct);
             }
         }
     }
+
     private void OnShutdown()
     {
         lock (_shutdownLock)
@@ -169,7 +182,7 @@ public class ServerLogs : IDisposable
 
     private async Task DeathWatch(CancellationToken ct)
     {
-        string[] container = new string[] {
+        string[] deathKeywords = new string[] {
             "was", "died", "drowned", "tried", "burned", "flames", "fire", "fall", "death", "cactus", "suffocated",
             "shot", "killed", "blown", "blew", "slain", "fell"
         };
@@ -177,29 +190,30 @@ public class ServerLogs : IDisposable
         using var stream = new FileStream(_logFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
         using var reader = new StreamReader(stream);
 
-        stream.Seek(0, SeekOrigin.End);
-
+        stream.Seek(0, SeekOrigin.End); 
         while (!ct.IsCancellationRequested)
         {
             string? line = await reader.ReadLineAsync();
 
             if (line != null)
             {
-                line = line.ToLower();
-
-                foreach (string s in container)
+                if (line.Contains("[Server thread/INFO]:"))
                 {
-                    if (line.Contains(s))
+                    string messagePart = line.Split(new[] { "[Server thread/INFO]:" }, StringSplitOptions.None)[1].Trim();
+
+                    foreach (string keyword in deathKeywords)
                     {
-                        await DiscordBot.DiscordBot.SendDiscordMessage($"💀 {line}");
+                        if (messagePart.Contains(keyword, StringComparison.OrdinalIgnoreCase))
+                        {
+                            await DiscordBot.DiscordBot.SendDiscordMessage($"💀 {messagePart}");
+                            break;
+                        }
                     }
                 }
             }
             else
             {
-                await Task.Delay(1000, ct).ContinueWith(t => { });
-                reader.DiscardBufferedData();
-                stream.Seek(stream.Position, SeekOrigin.Begin);
+                await Task.Delay(1000, ct);
             }
         }
     }

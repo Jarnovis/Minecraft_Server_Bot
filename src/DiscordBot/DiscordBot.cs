@@ -103,7 +103,7 @@ public class DiscordBot
     {
         if (message.Author.IsBot) return;
 
-        if (message.Content.StartsWith("!help"))
+        if (message.Content.StartsWith("!mc_bot help"))
             await message.Channel.SendMessageAsync("Available commands: !mc OP command");
     }
 }
