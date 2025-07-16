@@ -54,7 +54,7 @@ class Program
         string rcon_password = EnvConfig.Get("RCON_PASSWORD");
 
         _rcon = new RCON(end_point, rcon_password);
-        _rcon.ConnectAsync();
+        await _rcon.ConnectAsync();
 
         // _client = new DiscordSocketClient(new DiscordSocketConfig
         // {

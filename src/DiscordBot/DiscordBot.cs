@@ -27,11 +27,6 @@ public class DiscordBot
                              GatewayIntents.MessageContent
         });
 
-        _client.Log += LogAsync;
-        _client.Ready += ReadyAsync;
-
-        _client.MessageReceived += HandleMessageAsync;
-        
         var server_ip = IPAddress.Parse(EnvConfig.Get("RCON_HOST"));
         int rcon_port = Convert.ToInt32(EnvConfig.Get("RCON_PORT"));
         var end_point = new IPEndPoint(server_ip, rcon_port);
@@ -40,13 +35,12 @@ public class DiscordBot
         _rcon = new RCON(end_point, rcon_password);
         _rcon.ConnectAsync();
 
-        var backgroundTasks = new BackgroundTasks(_rcon, _cts.Token);
-
         Console.CancelKeyPress += (sender, e) =>
         {
             e.Cancel = true;
             _cts.Cancel();
         };
+        
     }
 
     public static void SetTargetChannel(ITextChannel channel)
@@ -56,8 +50,15 @@ public class DiscordBot
 
     public static async Task StartAsync()
     {
+        _client.Log += LogAsync;
+        _client.Ready += ReadyAsync;
+        _client.MessageReceived += HandleMessageAsync;
+
         await _client.LoginAsync(TokenType.Bot, _botToken);
         await _client.StartAsync();
+
+        await Task.Delay(10000);
+        _ = new BackgroundTasks(_rcon, _cts.Token);
 
         await Task.Delay(-1);
     }
@@ -77,6 +78,7 @@ public class DiscordBot
         foreach (var guild in _client.Guilds)
         {
             var channel = await Channel.ChannelExistens(guild, "minecraft");
+            _targetChannel = channel;
             _serverLogs = new ServerLogs(_client, channel);
         }
     }
@@ -95,6 +97,11 @@ public class DiscordBot
         if (_targetChannel != null)
         {
             await _targetChannel.SendMessageAsync(message.ToString());
+        }
+        else
+        {
+            Console.WriteLine($"target channel ({_targetChannel}) is null");
+            await ReadyAsync();
         }
     }
 

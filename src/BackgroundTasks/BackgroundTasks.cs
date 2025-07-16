@@ -17,8 +17,8 @@ public class BackgroundTasks
         _rcon = rcon;
         _ct = ct;
 
-        AutoSave();
-        CloseServer();
+        _ = AutoSave();
+        _ = CloseServer();
     }
 
     public static async Task Save()
@@ -81,7 +81,7 @@ public class BackgroundTasks
                 if (timeNow == (closingTime - reminder))
                 {
                     string message = $"Server closing in {reminder.Minutes} Minutes";
-                    string discordMessage = $"Server closing in {timeReminders[reminder.Minutes]}";
+                    string discordMessage = $"Server closing in {timeReminders[reminder.Minutes]} minutes";
 
                     await _rcon.SendCommandAsync($"say {message}");
                     await DiscordBot.DiscordBot.SendDiscordMessage(discordMessage);
