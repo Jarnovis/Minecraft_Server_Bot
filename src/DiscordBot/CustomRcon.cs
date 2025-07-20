@@ -10,17 +10,25 @@ public class CustomRcon
 
     public async static Task SetRecon()
     {
-        while (!rcon.Connected || rcon == null)
+        while (rcon == null || !rcon.Connected)
         {
-            var server_ip = IPAddress.Parse(EnvConfig.Get("RCON_HOST"));
-            int rcon_port = Convert.ToInt32(EnvConfig.Get("RCON_PORT"));
-            var end_point = new IPEndPoint(server_ip, rcon_port);
-            string rcon_password = EnvConfig.Get("RCON_PASSWORD");
+            try
+            {
+                var server_ip = IPAddress.Parse(EnvConfig.Get("RCON_HOST"));
+                int rcon_port = Convert.ToInt32(EnvConfig.Get("RCON_PORT"));
+                var end_point = new IPEndPoint(server_ip, rcon_port);
+                string rcon_password = EnvConfig.Get("RCON_PASSWORD");
 
-            rcon = new RCON(end_point, rcon_password);
-            await rcon.ConnectAsync();
+                rcon = new RCON(end_point, rcon_password);
+                await rcon.ConnectAsync();
+
+                Console.WriteLine("RCON Connected");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"RCON connect failed: {ex.Message}");
+                await Task.Delay(5000);
+            }
         }
-
-        Console.WriteLine("RCON Connected");
     }
 }

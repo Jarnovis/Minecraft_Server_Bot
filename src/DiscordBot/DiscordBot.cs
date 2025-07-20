@@ -16,7 +16,6 @@ public class DiscordBot
     private readonly object _shutdownLock = new object();
     private static ServerLogs? _serverLogs;
     private static CancellationTokenSource _cts = new CancellationTokenSource();
-    private static RCON _rcon;
 
     static DiscordBot()
     {
@@ -26,14 +25,6 @@ public class DiscordBot
                              GatewayIntents.GuildMessages |
                              GatewayIntents.MessageContent
         });
-
-        var server_ip = IPAddress.Parse(EnvConfig.Get("RCON_HOST"));
-        int rcon_port = Convert.ToInt32(EnvConfig.Get("RCON_PORT"));
-        var end_point = new IPEndPoint(server_ip, rcon_port);
-        string rcon_password = EnvConfig.Get("RCON_PASSWORD");
-
-        _rcon = new RCON(end_point, rcon_password);
-        _rcon.ConnectAsync();
 
         Console.CancelKeyPress += (sender, e) =>
         {

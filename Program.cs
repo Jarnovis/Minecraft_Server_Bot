@@ -40,6 +40,7 @@ class Program
             catch (Exception ex)
             {
                 await message.Channel.SendMessageAsync($"Failed to send command: {ex.Message}");
+                Console.WriteLine(ex.Message);
             }
         }
     }
@@ -47,7 +48,7 @@ class Program
     public async Task MainAsync()
     {
         _cts = new CancellationTokenSource();
-        CustomRcon.SetRecon();
+        await CustomRcon.SetRecon();
         // var server_ip = IPAddress.Parse(EnvConfig.Get("RCON_HOST"));
         // int rcon_port = Convert.ToInt32(EnvConfig.Get("RCON_PORT"));
         // var end_point = new IPEndPoint(server_ip, rcon_port);
