@@ -36,6 +36,8 @@ class Program
             {
                 var response = await CustomRcon.rcon.SendCommandAsync(command);
                 await message.Channel.SendMessageAsync($"Sent to server: `{command}`\nServer said: `{response}`");
+
+                Console.WriteLine(response);
             }
             catch (Exception ex)
             {
@@ -49,6 +51,7 @@ class Program
     {
         _cts = new CancellationTokenSource();
         await CustomRcon.SetRecon();
+
         // var server_ip = IPAddress.Parse(EnvConfig.Get("RCON_HOST"));
         // int rcon_port = Convert.ToInt32(EnvConfig.Get("RCON_PORT"));
         // var end_point = new IPEndPoint(server_ip, rcon_port);

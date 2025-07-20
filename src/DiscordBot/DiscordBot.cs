@@ -26,12 +26,14 @@ public class DiscordBot
                              GatewayIntents.MessageContent
         });
 
+        var discordToken = EnvConfig.Get("DISCORD_TOKEN");
+
         Console.CancelKeyPress += (sender, e) =>
         {
             e.Cancel = true;
             _cts.Cancel();
         };
-        
+
     }
 
     public static void SetTargetChannel(ITextChannel channel)
@@ -41,9 +43,9 @@ public class DiscordBot
 
     public static async Task StartAsync()
     {
-        _client.Log += LogAsync;
+        _client.Log += Log;
         _client.Ready += ReadyAsync;
-        _client.MessageReceived += HandleMessageAsync;
+        _client.MessageReceived += HandleMessage;
 
         await _client.LoginAsync(TokenType.Bot, _botToken);
         await _client.StartAsync();
@@ -52,11 +54,6 @@ public class DiscordBot
         _ = new BackgroundTasks(_cts.Token);
 
         await Task.Delay(-1);
-    }
-
-    private static Task LogAsync(LogMessage message)
-    {
-        return Task.CompletedTask;
     }
 
     private static async Task ReadyAsync()
@@ -96,11 +93,32 @@ public class DiscordBot
         }
     }
 
-    private static async Task HandleMessageAsync(SocketMessage message)
+    public static async Task HandleMessage(SocketMessage message)
     {
         if (message.Author.IsBot) return;
 
-        if (message.Content.StartsWith("!mc_bot help"))
-            await message.Channel.SendMessageAsync("Available commands: !mc OP command");
+        if (message.Content.StartsWith("!mc help")) await message.Channel.SendMessageAsync("Available commands: !mc OP command");
+
+        if (message.Content.StartsWith("!mc"))
+        {
+            var command = message.Content.Substring(4);
+            try
+            {
+                var response = await CustomRcon.rcon.SendCommandAsync(command);
+                await message.Channel.SendMessageAsync($"Sent to server: `{command}`\nServer said: `{response}`");
+
+                Console.WriteLine(response);
+            }
+            catch (Exception ex)
+            {
+                await message.Channel.SendMessageAsync($"Failed to send command: {ex.Message}");
+                Console.WriteLine(ex.Message);
+            }
+        }
+    }
+    
+    private static Task Log(LogMessage message)
+    {
+        return Task.CompletedTask;
     }
 }
