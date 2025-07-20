@@ -8,9 +8,9 @@ public class CustomRcon
 {
     public static RCON rcon { private set; get; }
 
-    public async static void SetRecon()
+    public async static Task SetRecon()
     {
-        while (!rcon.Connected)
+        while (!rcon.Connected || rcon == null)
         {
             var server_ip = IPAddress.Parse(EnvConfig.Get("RCON_HOST"));
             int rcon_port = Convert.ToInt32(EnvConfig.Get("RCON_PORT"));
