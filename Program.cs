@@ -15,7 +15,6 @@ namespace MinecraftServerDiscordBot;
 class Program
 {
     private DiscordSocketClient _client { get; set; }
-    private RCON _rcon { get; set; }
     private CancellationTokenSource _cts { get; set; }
     private ServerLogs? _serverLogs { get; set; }
 
@@ -35,7 +34,7 @@ class Program
             var command = message.Content.Substring(4);
             try
             {
-                var response = await _rcon.SendCommandAsync(command);
+                var response = await CustomRcon.rcon.SendCommandAsync(command);
                 await message.Channel.SendMessageAsync($"Sent to server: `{command}`\nServer said: `{response}`");
             }
             catch (Exception ex)
@@ -48,13 +47,14 @@ class Program
     public async Task MainAsync()
     {
         _cts = new CancellationTokenSource();
-        var server_ip = IPAddress.Parse(EnvConfig.Get("RCON_HOST"));
-        int rcon_port = Convert.ToInt32(EnvConfig.Get("RCON_PORT"));
-        var end_point = new IPEndPoint(server_ip, rcon_port);
-        string rcon_password = EnvConfig.Get("RCON_PASSWORD");
+        CustomRcon.SetRecon();
+        // var server_ip = IPAddress.Parse(EnvConfig.Get("RCON_HOST"));
+        // int rcon_port = Convert.ToInt32(EnvConfig.Get("RCON_PORT"));
+        // var end_point = new IPEndPoint(server_ip, rcon_port);
+        // string rcon_password = EnvConfig.Get("RCON_PASSWORD");
 
-        _rcon = new RCON(end_point, rcon_password);
-        await _rcon.ConnectAsync();
+        // _rcon = new RCON(end_point, rcon_password);
+        // await _rcon.ConnectAsync();
 
         // _client = new DiscordSocketClient(new DiscordSocketConfig
         // {

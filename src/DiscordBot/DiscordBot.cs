@@ -58,7 +58,7 @@ public class DiscordBot
         await _client.StartAsync();
 
         await Task.Delay(10000);
-        _ = new BackgroundTasks(_rcon, _cts.Token);
+        _ = new BackgroundTasks(_cts.Token);
 
         await Task.Delay(-1);
     }

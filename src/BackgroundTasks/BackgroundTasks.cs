@@ -4,17 +4,16 @@ using System.Collections.Specialized;
 using System.Drawing;
 using System.Threading;
 using CoreRCON;
+using Discord;
 using MinecraftServerDiscordBot;
 using MinecraftServerDiscordBot.Commands;
 using MinecraftServerDiscordBot.Data;
 
 public class BackgroundTasks
 {
-    private static RCON _rcon { get; set; }
     private static CancellationToken _ct { get; set; }
-    public BackgroundTasks(RCON rcon, CancellationToken ct)
+    public BackgroundTasks(CancellationToken ct)
     {
-        _rcon = rcon;
         _ct = ct;
 
         _ = AutoSave();
@@ -26,7 +25,7 @@ public class BackgroundTasks
         try
         {
             await DiscordBot.DiscordBot.SendDiscordMessage($"💾 The Minecraft server ({EnvConfig.Get("PUBLIC_SERVER_IP")}:{EnvConfig.Get("PUBLIC_SERVER_PORT")}) has just saved!");
-            await _rcon.SendCommandAsync("save-all");
+            await CustomRcon.rcon.SendCommandAsync("save-all");
         }
         catch (Exception ex)
         {
@@ -38,7 +37,7 @@ public class BackgroundTasks
     {
         while (!_ct.IsCancellationRequested)
         {
-            var response = await _rcon.SendCommandAsync("list");
+            var response = await CustomRcon.rcon.SendCommandAsync("list");
             IList<string> currentPlayers = ServerLogs.ParsePlayerList(response);
 
             if (currentPlayers.Count > 0) await Save();
@@ -83,14 +82,14 @@ public class BackgroundTasks
                     string message = $"Server closing in {reminder.Minutes} Minutes";
                     string discordMessage = $"Server closing in {timeReminders[reminder.Minutes]} minutes";
 
-                    await _rcon.SendCommandAsync($"say {message}");
+                    await CustomRcon.rcon.SendCommandAsync($"say {message}");
                     await DiscordBot.DiscordBot.SendDiscordMessage(discordMessage);
                     Console.WriteLine(discordMessage);
                 }
 
                 if (timeNow == closingTime)
                 {
-                    await _rcon.SendCommandAsync($"Server will be open tomorrow at {startTime}");
+                    await CustomRcon.rcon.SendCommandAsync($"Server will be open tomorrow at {startTime}");
                     await ServerLogs.HandleShutdownAsync();
                     await DiscordBot.DiscordBot.SendDiscordMessage($"Server will be open tomorrow at {startTime}");
                 }

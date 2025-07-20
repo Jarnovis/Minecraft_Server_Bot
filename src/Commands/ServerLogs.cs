@@ -11,7 +11,6 @@ namespace MinecraftServerDiscordBot.Commands;
 
 public class ServerLogs : IDisposable
 {
-    private static RCON _rcon { get; set; }
     private readonly DiscordSocketClient _client;
     private readonly ITextChannel _targetChannel;
     private readonly string _logFilePath = EnvConfig.Get("LOG_FILE_PATH");
@@ -32,8 +31,6 @@ public class ServerLogs : IDisposable
         int rcon_port = Convert.ToInt32(EnvConfig.Get("RCON_PORT"));
         var end_point = new IPEndPoint(server_ip, rcon_port);
         string rcon_password = EnvConfig.Get("RCON_PASSWORD");
-        _rcon = new RCON(end_point, rcon_password);
-        _rcon.ConnectAsync();
 
         _client = client;
         _targetChannel = targetChannel;
@@ -82,7 +79,7 @@ public class ServerLogs : IDisposable
         {
             try
             {
-                var response = await _rcon.SendCommandAsync("list");
+                var response = await CustomRcon.rcon.SendCommandAsync("list");
                 var currentPlayers = ParsePlayerList(response);
 
                 var joined = currentPlayers.Except(_players).ToList();
@@ -110,15 +107,15 @@ public class ServerLogs : IDisposable
             {
                 Console.WriteLine($"Monitor error: {ex.Message}");
 
-                if (_rcon.Connected)
+                if (CustomRcon.rcon.Connected)
                 {
-                    var response = await _rcon.SendCommandAsync("list");
+                    var response = await CustomRcon.rcon.SendCommandAsync("list");
                 }
                 else
                 {
                     try
                     {
-                        await _rcon.ConnectAsync();
+                        await CustomRcon.rcon.ConnectAsync();
                         Console.WriteLine("Reconnected RCON.");
                     }
                     catch (Exception ex2)
@@ -175,7 +172,7 @@ public class ServerLogs : IDisposable
     public static async Task HandleShutdownAsync()
     {
         await DiscordBot.DiscordBot.SendDiscordMessage($"🟠 Closing server {EnvConfig.Get("PUBLIC_SERVER_IP")}:{EnvConfig.Get("PUBLIC_SERVER_PORT")}.");
-        await _rcon.SendCommandAsync("save-all");
+        await CustomRcon.rcon.SendCommandAsync("save-all");
         await DiscordBot.DiscordBot.SendDiscordMessage($"💾 The Minecraft server ({EnvConfig.Get("PUBLIC_SERVER_IP")}:{EnvConfig.Get("PUBLIC_SERVER_PORT")}) has just saved!");
         await DiscordBot.DiscordBot.SendDiscordMessage($"🔴 Server {EnvConfig.Get("PUBLIC_SERVER_IP")}:{EnvConfig.Get("PUBLIC_SERVER_PORT")} closed.");
     }
