@@ -84,7 +84,6 @@ public class BackgroundTasks
 
                     await CustomRcon.rcon.SendCommandAsync($"say {message}");
                     await DiscordBot.DiscordBot.SendDiscordMessage(discordMessage);
-                    Console.WriteLine(discordMessage);
                 }
 
                 if (timeNow == closingTime)
