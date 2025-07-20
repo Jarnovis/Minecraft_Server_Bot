@@ -10,12 +10,17 @@ public class CustomRcon
 
     public async static void SetRecon()
     {
-        var server_ip = IPAddress.Parse(EnvConfig.Get("RCON_HOST"));
-        int rcon_port = Convert.ToInt32(EnvConfig.Get("RCON_PORT"));
-        var end_point = new IPEndPoint(server_ip, rcon_port);
-        string rcon_password = EnvConfig.Get("RCON_PASSWORD");
+        while (!rcon.Connected)
+        {
+            var server_ip = IPAddress.Parse(EnvConfig.Get("RCON_HOST"));
+            int rcon_port = Convert.ToInt32(EnvConfig.Get("RCON_PORT"));
+            var end_point = new IPEndPoint(server_ip, rcon_port);
+            string rcon_password = EnvConfig.Get("RCON_PASSWORD");
 
-        rcon = new RCON(end_point, rcon_password);
-        await rcon.ConnectAsync();
+            rcon = new RCON(end_point, rcon_password);
+            await rcon.ConnectAsync();
+        }
+
+        Console.WriteLine("RCON Connected");
     }
 }
