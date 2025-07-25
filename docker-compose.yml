@@ -29,6 +29,7 @@ services:
     depends_on:
       - minecraft
     environment:
+      TZ: Europe/Amsterdam
       DISCORD_TOKEN: ${DISCORD_TOKEN}
       RCON_HOST: ${RCON_HOST}
       RCON_PORT: ${RCON_PORT}
@@ -40,4 +41,6 @@ services:
       SERVER_CLOSING_TIME: ${SERVER_CLOSING_TIME}
     volumes:
       - ./data:/data
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
     restart: unless-stopped
