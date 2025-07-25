@@ -74,6 +74,7 @@ public class BackgroundTasks
         {
             TimeSpan timeNow = DateTime.Now.TimeOfDay;
             timeNow = new TimeSpan(timeNow.Hours, timeNow.Minutes, 0);
+            Console.WriteLine($"{timeNow} | {closingTime}");
 
             foreach (TimeSpan reminder in reminders)
             {
