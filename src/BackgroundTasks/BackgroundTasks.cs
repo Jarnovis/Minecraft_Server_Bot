@@ -79,10 +79,10 @@ public class BackgroundTasks
             {
                 if (timeNow == (closingTime - reminder))
                 {
-                    string message = $"Server closing in {reminder.Minutes} Minutes";
-                    string discordMessage = $"Server closing in {timeReminders[reminder.Minutes]} minutes";
+                    string message = $"Server closing in {reminder.Minutes} Minutes TESTING";
+                    string discordMessage = $"Server closing in {timeReminders[reminder.Minutes]} minutes TESTING";
 
-                    await CustomRcon.rcon.SendCommandAsync($"say {message}");
+                    await CustomRcon.rcon.SendCommandAsync($"say {message} TESTING");
                     await DiscordBot.DiscordBot.SendDiscordMessage(discordMessage);
                 }
 
@@ -92,6 +92,8 @@ public class BackgroundTasks
                     await ServerLogs.HandleShutdownAsync();
                     await DiscordBot.DiscordBot.SendDiscordMessage($"Server will be open tomorrow at {startTime}");
                 }
+
+                Console.WriteLine($"Now: {timeNow} | watching: {reminder}");
             }
 
             await Task.Delay(60000, _ct).ContinueWith(t => { });
