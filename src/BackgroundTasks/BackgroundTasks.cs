@@ -79,10 +79,10 @@ public class BackgroundTasks
             {
                 if (timeNow == (closingTime - reminder))
                 {
-                    string message = $"Server closing in {reminder.Minutes} Minutes TESTING";
-                    string discordMessage = $"Server closing in {timeReminders[reminder.Minutes]} minutes TESTING";
+                    string message = $"Server closing in {reminder.Minutes} Minutes";
+                    string discordMessage = $"Server closing in {timeReminders[reminder.Minutes]} minutes";
 
-                    await CustomRcon.rcon.SendCommandAsync($"say {message} TESTING");
+                    await CustomRcon.rcon.SendCommandAsync($"say {message}");
                     await DiscordBot.DiscordBot.SendDiscordMessage(discordMessage);
                 }
 
