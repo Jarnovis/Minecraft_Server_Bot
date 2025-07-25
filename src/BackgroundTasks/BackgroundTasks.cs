@@ -74,6 +74,7 @@ public class BackgroundTasks
         {
             TimeSpan timeNow = DateTime.Now.TimeOfDay;
             timeNow = new TimeSpan(timeNow.Hours, timeNow.Minutes, 0);
+            Console.WriteLine($"Now: {timeNow} | watching: {closingTime}");
 
             foreach (TimeSpan reminder in reminders)
             {
@@ -92,8 +93,6 @@ public class BackgroundTasks
                     await ServerLogs.HandleShutdownAsync();
                     await DiscordBot.DiscordBot.SendDiscordMessage($"Server will be open tomorrow at {startTime}");
                 }
-
-                Console.WriteLine($"Now: {timeNow} | watching: {reminder}");
             }
 
             await Task.Delay(60000, _ct).ContinueWith(t => { });
